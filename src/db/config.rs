@@ -1,5 +1,6 @@
 use envconfig::Envconfig;
 use dotenv::dotenv;
+use shuttle_runtime::SecretStore;
 use crate::{ Result, Error };
 
 #[derive(Debug, Envconfig)]
@@ -32,14 +33,67 @@ impl DatabaseConfig {
                 }
         }
     }
+
+    pub fn init_from_shuttle_secrets(secrets: &SecretStore) -> Result<Self> {
+        // Get host
+        let host = match secrets.get("POSTGRES_HOST") {
+            Some(host) => host,
+            None => {
+                return Err(Error::DatabaseConfig);
+            }
+        };
+
+        // Get port
+        let port = match secrets.get("POSTGRES_PORT") {
+            Some(port) =>
+                match port.parse::<u16>() {
+                    Ok(port) => port,
+                    Err(_) => {
+                        return Err(Error::DatabaseConfig);
+                    }
+                }
+            None => {
+                return Err(Error::DatabaseConfig);
+            }
+        };
+
+        // Get username
+        let username = match secrets.get("POSTGRES_USER") {
+            Some(username) => username,
+            None => {
+                return Err(Error::DatabaseConfig);
+            }
+        };
+
+        // Get password
+        let password = match secrets.get("POSTGRES_PASSWORD") {
+            Some(password) => password,
+            None => {
+                return Err(Error::DatabaseConfig);
+            }
+        };
+
+        // Get database
+        let database = match secrets.get("POSTGRES_DB") {
+            Some(database) => database,
+            None => {
+                return Err(Error::DatabaseConfig);
+            }
+        };
+
+        // Create the configuration
+        Ok(Self { host, port, username, password, database })
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeMap;
+
     use super::*;
 
     #[test]
-    fn test_database_config() {
+    fn init_from_dotenv() {
         let database_config = DatabaseConfig::init_from_dotenv();
 
         println!("{:?}", database_config);

@@ -1,18 +1,15 @@
 use super::DatabaseConfig;
 use crate::{ Result, User };
 
-pub async fn connect_to_database() -> Result<sqlx::PgPool> {
-    // Load the database configuration
-    let database_config = DatabaseConfig::init_from_dotenv()?;
-
+pub async fn connect_to_database(config: &DatabaseConfig) -> Result<sqlx::PgPool> {
     // Prepare the connection options
     let connection_options = sqlx::postgres::PgConnectOptions
         ::new()
-        .host(&database_config.host)
-        .port(database_config.port)
-        .username(&database_config.username)
-        .password(&database_config.password)
-        .database(&database_config.database)
+        .host(&config.host)
+        .port(config.port)
+        .username(&config.username)
+        .password(&config.password)
+        .database(&config.database)
         .ssl_mode(sqlx::postgres::PgSslMode::Require);
 
     // Get the connection pool

@@ -1,23 +1,27 @@
 use actix_web::{ get, post, web::{ self, ServiceConfig }, HttpResponse, Responder };
 use jsonwebtoken::{ Header, encode };
 use shuttle_actix_web::ShuttleActixWeb;
+use shuttle_runtime::SecretStore;
 use sqlx::PgPool;
 
 use ironback::{
-    JWT_ENCODING_KEY,
-    JWT_DECODING_KEY,
+    connect_to_database,
+    validate_user,
     Claims,
+    DatabaseConfig,
     Error,
     Result,
     User,
-    connect_to_database,
-    validate_user,
+    JWT_DECODING_KEY,
+    JWT_ENCODING_KEY,
 };
 
 #[shuttle_runtime::main]
-async fn main() -> ShuttleActixWeb<impl FnOnce(&mut ServiceConfig) + Send + Clone + 'static> {
+async fn main(
+    #[shuttle_runtime::Secrets] secrets: SecretStore
+) -> ShuttleActixWeb<impl FnOnce(&mut ServiceConfig) + Send + Clone + 'static> {
     // Create the app state
-    let app_state = web::Data::new(AppState::new().await.unwrap());
+    let app_state = web::Data::new(AppState::new(&secrets).await.unwrap());
 
     let config = move |cfg: &mut ServiceConfig| {
         cfg.app_data(app_state.clone())
@@ -36,9 +40,12 @@ struct AppState {
 }
 
 impl AppState {
-    pub async fn new() -> Result<Self> {
+    pub async fn new(secrets: &SecretStore) -> Result<Self> {
+        // Load the database configuration
+        let database_config = DatabaseConfig::init_from_shuttle_secrets(secrets)?;
+
         // Connect to the database
-        let db_connection_pool = connect_to_database().await?;
+        let db_connection_pool = connect_to_database(&database_config).await?;
 
         Ok(Self { db_connection_pool })
     }
