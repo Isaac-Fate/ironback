@@ -1,0 +1,6 @@
+/target
+.shuttle-storage
+Secrets*.toml
+
+# Environment variables
+**/.env
