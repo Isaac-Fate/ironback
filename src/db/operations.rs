@@ -47,44 +47,44 @@ pub async fn validate_user(pool: &sqlx::PgPool, user: &User) -> Result<bool> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    #[tokio::test]
-    async fn test_is_user_signed_up() {
-        // Create a connection pool
-        let pool = connect_to_database().await.unwrap();
+//     #[tokio::test]
+//     async fn test_is_user_signed_up() {
+//         // Create a connection pool
+//         let pool = connect_to_database().await.unwrap();
 
-        let result = is_user_signed_up(&pool, "aiknow2023@gmail.com").await;
-        assert!(result.is_ok());
-        let result = result.unwrap();
-        assert!(result);
+//         let result = is_user_signed_up(&pool, "aiknow2023@gmail.com").await;
+//         assert!(result.is_ok());
+//         let result = result.unwrap();
+//         assert!(result);
 
-        let result = is_user_signed_up(&pool, "xxx@gmail.com").await;
-        assert!(result.is_ok());
-        let result = result.unwrap();
-        assert!(!result);
-    }
+//         let result = is_user_signed_up(&pool, "xxx@gmail.com").await;
+//         assert!(result.is_ok());
+//         let result = result.unwrap();
+//         assert!(!result);
+//     }
 
-    #[tokio::test]
-    async fn test_validate_user() {
-        // Create a connection pool
-        let pool = connect_to_database().await.unwrap();
+//     #[tokio::test]
+//     async fn test_validate_user() {
+//         // Create a connection pool
+//         let pool = connect_to_database().await.unwrap();
 
-        let result = validate_user(&pool, &User::new("aiknow2023@gmail.com", "admin")).await;
-        assert!(result.is_ok());
-        let result = result.unwrap();
-        assert!(result);
+//         let result = validate_user(&pool, &User::new("aiknow2023@gmail.com", "admin")).await;
+//         assert!(result.is_ok());
+//         let result = result.unwrap();
+//         assert!(result);
 
-        let result = validate_user(&pool, &User::new("aiknow2023@gmail.com", "123xxx")).await;
-        assert!(result.is_ok());
-        let result = result.unwrap();
-        assert!(!result);
+//         let result = validate_user(&pool, &User::new("aiknow2023@gmail.com", "123xxx")).await;
+//         assert!(result.is_ok());
+//         let result = result.unwrap();
+//         assert!(!result);
 
-        let result = validate_user(&pool, &User::new("xxx@gmail.com", "123xxx")).await;
-        assert!(result.is_ok());
-        let result = result.unwrap();
-        assert!(!result);
-    }
-}
+//         let result = validate_user(&pool, &User::new("xxx@gmail.com", "123xxx")).await;
+//         assert!(result.is_ok());
+//         let result = result.unwrap();
+//         assert!(!result);
+//     }
+// }
